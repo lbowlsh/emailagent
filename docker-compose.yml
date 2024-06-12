@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8  # 可以选择您需要的MySQL版本
+    container_name: mysql_flask_mail
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'dbname'  # 替换为您的数据库名
+      MYSQL_USER: 'user'        # 替换为您的数据库用户
+      MYSQL_PASSWORD: 'password'  # 替换为您的数据库密码
+      MYSQL_ROOT_PASSWORD: 'rootpassword'  # 替换为您的root密码
+    ports:
+      - "3506:3306"  # 可选：只有当您需要在宿主机上直接访问MySQL时才需要映射端口
+    volumes:
+      - mysql_data:/var/lib/mysql  # 数据持久化
+    networks:
+      - traefik
+
+  flask_mail_workflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask_mail_workflow
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+    networks:
+      - traefik
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.email.rule=Host(`email.263ai.io`)"
+      - "traefik.http.routers.email.entrypoints=web"
+      - "traefik.http.services.email.loadbalancer.server.port=5000"
+      
+volumes:
+  mysql_data:
+
+
+networks:
+  traefik:
+    external: true

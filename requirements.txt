@@ -1,0 +1,12 @@
+Flask
+Flask-APScheduler
+mailparse
+imapclient
+python-dotenv
+flask_sqlalchemy
+pika
+pymysql
+crewai
+crewai_tools
+langchain
+pydantic
